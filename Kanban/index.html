@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Gerencie suas tarefas com um board Kanban moderno — visualize, organize e mova cards entre colunas de status." />
+  <meta name="theme-color" content="#0f0f1a" />
+  <title>KanbanFlow — Gerenciador de Tarefas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="app-body" data-theme="dark">
+
+  <!-- ═══════════════════════════════════════════════════
+       HEADER
+  ═══════════════════════════════════════════════════ -->
+  <header class="app-header" role="banner">
+    <div class="header-inner">
+
+      <!-- Brand -->
+      <div class="header-brand">
+        <svg class="brand-icon" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M16 2L29 9.5V22.5L16 30L3 22.5V9.5L16 2Z" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M10 16L14 20L22 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="brand-name">KanbanFlow</span>
+      </div>
+
+      <!-- Search -->
+      <div class="header-search">
+        <label for="search-input" class="sr-only">Buscar tarefas</label>
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <input
+          id="search-input"
+          type="search"
+          class="search-input"
+          placeholder="Buscar tarefas…"
+          aria-label="Buscar tarefas"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </div>
+
+      <!-- Actions -->
+      <nav class="header-actions" aria-label="Ações globais">
+
+        <!-- Priority filters -->
+        <div class="filter-chips" role="group" aria-label="Filtrar por prioridade">
+          <button type="button" id="filter-all"    class="chip chip--active" data-filter="all"    aria-pressed="true">Todas</button>
+          <button type="button" id="filter-high"   class="chip chip--high"   data-filter="high"   aria-pressed="false">Alta</button>
+          <button type="button" id="filter-medium" class="chip chip--medium" data-filter="medium" aria-pressed="false">Média</button>
+          <button type="button" id="filter-low"    class="chip chip--low"    data-filter="low"    aria-pressed="false">Baixa</button>
+        </div>
+
+        <div class="header-divider" aria-hidden="true"></div>
+
+        <!-- Grouped controls -->
+        <div class="header-controls" role="group" aria-label="Controles">
+
+          <!-- Filters toggle -->
+          <button type="button" id="btn-toggle-sidebar" class="header-ctrl-btn" aria-label="Filtros avançados" aria-expanded="false" aria-controls="sidebar-filters">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/>
+            </svg>
+            <span class="header-ctrl-label">Filtros</span>
+          </button>
+
+          <!-- Theme toggle -->
+          <button type="button" id="btn-toggle-theme" class="header-ctrl-btn" aria-label="Alternar tema claro/escuro" data-theme-toggle>
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"/>
+              <line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <span class="header-ctrl-label" id="theme-label">Tema</span>
+          </button>
+
+          <!-- User profile -->
+          <button type="button" id="btn-user-profile" class="header-ctrl-btn" aria-label="Perfil do usuário" aria-haspopup="dialog">
+            <span class="user-avatar-mini" id="header-user-avatar">?</span>
+            <span class="header-ctrl-label" id="header-user-name">Meu Perfil</span>
+          </button>
+
+        </div>
+
+        <div class="header-divider" aria-hidden="true"></div>
+
+        <!-- New task -->
+        <button type="button" id="btn-new-task" class="btn btn--primary" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="16" height="16">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Nova Tarefa
+        </button>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- Layout -->
+  <div class="app-layout">
+
+    <!-- ─────────────────────────────────────────────
+         SIDEBAR — Filtros avançados
+    ───────────────────────────────────────────── -->
+    <aside id="sidebar-filters" class="sidebar" role="complementary" aria-label="Filtros avançados" data-open="false">
+      <div class="sidebar-inner">
+        <div class="sidebar-header">
+          <h2 class="sidebar-title">Filtros avançados</h2>
+          <button type="button" id="btn-close-sidebar" class="btn btn--icon btn--sm" aria-label="Fechar filtros">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="16" height="16">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+
+        <form id="form-filters" class="sidebar-body" novalidate>
+          <fieldset class="filter-group">
+            <legend class="filter-group-label">Status</legend>
+            <label class="checkbox-label"><input type="checkbox" name="status" value="todo" checked /><span>A Fazer</span></label>
+            <label class="checkbox-label"><input type="checkbox" name="status" value="doing" checked /><span>Em Andamento</span></label>
+            <label class="checkbox-label"><input type="checkbox" name="status" value="done" checked /><span>Concluído</span></label>
+          </fieldset>
+
+          <fieldset class="filter-group">
+            <legend class="filter-group-label">Tags</legend>
+            <div id="sidebar-tags-list" class="tag-cloud" aria-live="polite"></div>
+          </fieldset>
+
+          <div class="filter-actions">
+            <button type="reset" id="btn-clear-filters" class="btn btn--ghost btn--sm">Limpar</button>
+            <button type="submit" id="btn-apply-filters" class="btn btn--primary btn--sm">Aplicar</button>
+          </div>
+        </form>
+      </div>
+    </aside>
+
+    <!-- ─────────────────────────────────────────────
+         BOARD
+    ───────────────────────────────────────────── -->
+    <main id="kanban-board" class="board" role="main" aria-label="Board Kanban">
+
+      <!-- Empty search -->
+      <div id="empty-search" class="empty-state" hidden aria-live="polite">
+        <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+        <p>Nenhuma tarefa encontrada para "<strong id="empty-search-term"></strong>"</p>
+        <button type="button" id="btn-clear-search" class="btn btn--ghost btn--sm">Limpar busca</button>
+      </div>
+
+      <!-- COLUNA 1 — A Fazer -->
+      <section id="col-todo" class="column column--todo" data-status="todo" aria-label="Coluna: A Fazer" aria-dropeffect="move">
+        <header class="column-header">
+          <div class="column-header-left">
+            <span class="column-dot column-dot--todo" aria-hidden="true"></span>
+            <h2 class="column-title">A Fazer</h2>
+            <span id="count-todo" class="column-badge" aria-live="polite">0</span>
+          </div>
+          <button type="button" id="btn-add-todo" class="btn btn--icon btn--sm column-add-btn" aria-label="Adicionar tarefa em A Fazer" data-preset-status="todo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="16" height="16">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </header>
+        <div id="dropzone-todo" class="column-body" role="list" aria-label="Tarefas a fazer" data-dropzone="todo">
+          <div id="empty-todo" class="column-empty" hidden aria-live="polite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" width="32" height="32">
+              <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="14" y2="13"/>
+            </svg>
+            <p>Nenhuma tarefa aqui.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLUNA 2 — Em Andamento -->
+      <section id="col-doing" class="column column--doing" data-status="doing" aria-label="Coluna: Em Andamento" aria-dropeffect="move">
+        <header class="column-header">
+          <div class="column-header-left">
+            <span class="column-dot column-dot--doing" aria-hidden="true"></span>
+            <h2 class="column-title">Em Andamento</h2>
+            <span id="count-doing" class="column-badge" aria-live="polite">0</span>
+          </div>
+          <button type="button" id="btn-add-doing" class="btn btn--icon btn--sm column-add-btn" aria-label="Adicionar tarefa em Em Andamento" data-preset-status="doing">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="16" height="16">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </button>
+        </header>
+        <div id="dropzone-doing" class="column-body" role="list" aria-label="Tarefas em andamento" data-dropzone="doing">
+          <div id="empty-doing" class="column-empty" hidden aria-live="polite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" width="32" height="32">
+              <circle cx="12" cy="12" r="9"/><polyline points="12,6 12,12 16,14"/>
+            </svg>
+            <p>Nada em andamento ainda.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- COLUNA 3 — Concluído -->
+      <section id="col-done" class="column column--done" data-status="done" aria-label="Coluna: Concluído" aria-dropeffect="move">
+        <header class="column-header">
+          <div class="column-header-left">
+            <span class="column-dot column-dot--done" aria-hidden="true"></span>
+            <h2 class="column-title">Concluído</h2>
+            <span id="count-done" class="column-badge column-badge--done" aria-live="polite">0</span>
+          </div>
+          <button type="button" id="btn-clear-done" class="btn btn--ghost btn--sm" aria-label="Limpar tarefas concluídas">Limpar</button>
+        </header>
+        <div id="dropzone-done" class="column-body" role="list" aria-label="Tarefas concluídas" data-dropzone="done">
+          <div id="empty-done" class="column-empty" hidden aria-live="polite">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true" width="32" height="32">
+              <polyline points="20,6 9,17 4,12"/>
+            </svg>
+            <p>Nenhuma tarefa concluída ainda.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       MODAL — Criar / Editar Tarefa
+  ═══════════════════════════════════════════════════ -->
+  <dialog id="modal-create" class="modal" aria-labelledby="modal-create-title" aria-describedby="modal-create-desc">
+    <div class="modal-overlay" data-modal-close="modal-create"></div>
+    <div class="modal-content modal-content--wide" role="document">
+
+      <header class="modal-header">
+        <div class="modal-header-left">
+          <span class="modal-mode-badge" id="modal-mode-badge">Nova</span>
+          <h2 id="modal-create-title" class="modal-title">Nova Tarefa</h2>
+        </div>
+        <p id="modal-create-desc" class="sr-only">Preencha os campos abaixo para criar ou editar uma tarefa.</p>
+        <button type="button" id="modal-create-close" class="btn btn--icon" aria-label="Fechar" data-modal-close="modal-create">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="18" height="18">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </header>
+
+      <form id="form-task" class="modal-form" novalidate>
+        <input type="hidden" id="task-id" name="id" value="" />
+
+        <div class="modal-body-grid">
+
+          <!-- ══ COLUNA ESQUERDA ══ -->
+          <div class="modal-col modal-col--main">
+
+            <!-- Título -->
+            <div class="form-group">
+              <label for="task-title" class="form-label">
+                Título <abbr title="obrigatório">*</abbr>
+              </label>
+              <div class="input-wrapper">
+                <input type="text" id="task-title" name="title" class="form-input"
+                  placeholder="Descreva sua tarefa de forma objetiva…"
+                  required maxlength="80" aria-required="true" />
+                <span class="input-char-count" id="title-char-count">0/80</span>
+              </div>
+            </div>
+
+            <!-- Descrição -->
+            <div class="form-group">
+              <label for="task-description" class="form-label">Descrição</label>
+              <textarea id="task-description" name="description" class="form-input form-textarea"
+                placeholder="Contexto, critérios de aceite, links úteis…"
+                rows="3" maxlength="600"></textarea>
+              <span class="form-hint form-hint--right"><span id="desc-char-count">0</span>/600</span>
+            </div>
+
+            <!-- Status -->
+            <div class="form-group">
+              <label class="form-label">Status <abbr title="obrigatório">*</abbr></label>
+              <input type="hidden" name="status" id="task-status-hidden" value="todo" />
+              <div class="status-toggle-group" role="radiogroup" aria-label="Status da tarefa">
+                <button type="button" class="status-btn status-btn--active" data-status="todo" aria-pressed="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" width="15" height="15">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="13" y2="13"/>
+                  </svg>
+                  A Fazer
+                </button>
+                <button type="button" class="status-btn" data-status="doing" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" width="15" height="15">
+                    <circle cx="12" cy="12" r="9"/><polyline points="12,6 12,12 16,14"/>
+                  </svg>
+                  Em Andamento
+                </button>
+                <button type="button" class="status-btn" data-status="done" aria-pressed="false">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" width="15" height="15">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                  Concluído
+                </button>
+              </div>
+            </div>
+
+            <!-- ─── TAGS ─── -->
+            <div class="form-group">
+              <label class="form-label">
+                Tags
+                <span class="form-label-sub">clique nas existentes ou crie novas</span>
+              </label>
+
+              <!-- Selecionadas (chips com ✕) -->
+              <div class="tags-selected-area" id="tags-selected" aria-live="polite">
+                <span class="tags-placeholder" id="tags-placeholder">Nenhuma tag selecionada</span>
+              </div>
+
+              <!-- Tags do board (clicáveis) -->
+              <div class="tags-board-section">
+                <span class="tags-section-label">Do board:</span>
+                <div class="tags-board-cloud" id="tags-existing-cloud" aria-label="Tags existentes"></div>
+              </div>
+
+              <!-- Nova tag -->
+              <div class="tag-input-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="tag-input-icon" aria-hidden="true" width="14" height="14">
+                  <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>
+                </svg>
+                <input type="text" id="task-tags-input" class="tag-new-input"
+                  placeholder="nova-tag… (Enter para adicionar)"
+                  autocomplete="off" maxlength="20" spellcheck="false" />
+                <button type="button" id="btn-add-tag" class="btn btn--tag-add">Adicionar</button>
+              </div>
+            </div>
+
+            <!-- ─── SUBTAREFAS ─── -->
+            <div class="form-group">
+              <div class="subtasks-header">
+                <label class="form-label">
+                  Subtarefas
+                  <span class="subtasks-progress-text" id="subtasks-progress-text">0 de 0</span>
+                </label>
+                <div class="subtasks-progress-bar-mini">
+                  <div class="subtasks-progress-fill" id="subtasks-progress-fill" style="width:0%"></div>
+                </div>
+              </div>
+
+              <div class="subtasks-list" id="subtasks-list" aria-label="Lista de subtarefas">
+                <!-- Subtarefas renderizadas pelo JS -->
+              </div>
+
+              <div class="subtask-input-row">
+                <input type="text" id="subtask-input" class="form-input subtask-input"
+                  placeholder="Adicionar subtarefa… (Enter para confirmar)"
+                  maxlength="80" autocomplete="off" />
+                <button type="button" id="btn-add-subtask" class="btn btn--ghost btn--sm">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="14" height="14">
+                    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                  </svg>
+                  Adicionar
+                </button>
+              </div>
+            </div>
+
+            <!-- ─── COMENTÁRIOS ─── -->
+            <div class="form-group">
+              <label class="form-label">
+                Comentários
+                <span class="comments-count-badge" id="comments-count-badge" hidden>0</span>
+              </label>
+
+              <div class="comments-list" id="comments-list" aria-label="Comentários" aria-live="polite">
+                <!-- Comentários renderizados pelo JS -->
+                <p class="comments-empty" id="comments-empty">Nenhum comentário ainda.</p>
+              </div>
+
+              <div class="comment-input-row">
+                <span class="comment-author-avatar" id="comment-author-avatar">?</span>
+                <div class="comment-input-wrap">
+                  <textarea id="comment-input" class="form-input comment-textarea"
+                    placeholder="Adicionar um comentário…"
+                    rows="2" maxlength="500"></textarea>
+                  <button type="button" id="btn-add-comment" class="btn btn--primary btn--sm comment-send-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="14" height="14">
+                      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22,2 15,22 11,13 2,9"/>
+                    </svg>
+                    Enviar
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ══ COLUNA DIREITA ══ -->
+          <div class="modal-col modal-col--side">
+
+            <!-- Prioridade -->
+            <div class="form-group">
+              <label class="form-label">Prioridade <abbr title="obrigatório">*</abbr></label>
+              <input type="hidden" name="priority" id="task-priority-hidden" value="medium" />
+              <div class="priority-picker">
+                <button type="button" class="priority-card priority-card--low" data-priority="low" aria-pressed="false">
+                  <span class="priority-dot priority-dot--low"></span>
+                  <div class="priority-card-body">
+                    <span class="priority-card-name">Baixa</span>
+                    <span class="priority-card-desc">Sem urgência</span>
+                  </div>
+                  <svg class="priority-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" width="14" height="14">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                </button>
+                <button type="button" class="priority-card priority-card--medium priority-card--active" data-priority="medium" aria-pressed="true">
+                  <span class="priority-dot priority-dot--medium"></span>
+                  <div class="priority-card-body">
+                    <span class="priority-card-name">Média</span>
+                    <span class="priority-card-desc">Atenção moderada</span>
+                  </div>
+                  <svg class="priority-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" width="14" height="14">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                </button>
+                <button type="button" class="priority-card priority-card--high" data-priority="high" aria-pressed="false">
+                  <span class="priority-dot priority-dot--high"></span>
+                  <div class="priority-card-body">
+                    <span class="priority-card-name">Alta</span>
+                    <span class="priority-card-desc">Precisa de atenção</span>
+                  </div>
+                  <svg class="priority-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true" width="14" height="14">
+                    <polyline points="20,6 9,17 4,12"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Responsável -->
+            <div class="form-group">
+              <label for="task-assignee" class="form-label">Responsável</label>
+              <div class="assignee-field">
+                <span class="assignee-preview-avatar" id="assignee-preview-avatar">?</span>
+                <input type="text" id="task-assignee" name="assignee" class="form-input"
+                  placeholder="Nome do responsável"
+                  maxlength="40" list="assignee-suggestions" autocomplete="off" />
+              </div>
+              <datalist id="assignee-suggestions">
+                <option value="Ana Lima" />
+                <option value="Beatriz Melo" />
+                <option value="Carlos Souza" />
+                <option value="Diego Rios" />
+                <option value="Fernanda Costa" />
+              </datalist>
+            </div>
+
+            <!-- Data Limite -->
+            <div class="form-group">
+              <label for="task-due" class="form-label">Data Limite</label>
+              <div class="date-field">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="date-icon" aria-hidden="true" width="15" height="15">
+                  <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <input type="date" id="task-due" name="due" class="form-input form-input--date" />
+              </div>
+              <span class="form-hint">Opcional</span>
+            </div>
+
+            <!-- Progresso (automático via subtarefas) -->
+            <div class="progress-summary-box">
+              <div class="progress-summary-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" width="14" height="14">
+                  <polyline points="22,12 18,12 15,21 9,3 6,12 2,12"/>
+                </svg>
+                <span>Progresso geral</span>
+                <span class="progress-summary-pct" id="progress-summary-pct">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="progress-summary-fill" style="width:0%"></div>
+              </div>
+              <p class="progress-summary-note">Calculado automaticamente pelas subtarefas</p>
+            </div>
+
+          </div>
+        </div><!-- /modal-body-grid -->
+
+        <footer class="modal-footer">
+          <button type="button" id="btn-cancel-task" class="btn btn--ghost" data-modal-close="modal-create">Cancelar</button>
+          <button type="submit" id="btn-save-task" class="btn btn--primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="15" height="15">
+              <polyline points="20,6 9,17 4,12"/>
+            </svg>
+            <span id="btn-save-label">Salvar Tarefa</span>
+          </button>
+        </footer>
+
+      </form>
+    </div>
+  </dialog>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       MODAL — Confirmação
+  ═══════════════════════════════════════════════════ -->
+  <dialog id="modal-confirm" class="modal modal--sm" aria-labelledby="modal-confirm-title" aria-describedby="modal-confirm-desc">
+    <div class="modal-overlay" data-modal-close="modal-confirm"></div>
+    <div class="modal-content" role="alertdialog">
+      <header class="modal-header">
+        <h2 id="modal-confirm-title" class="modal-title">Confirmar ação</h2>
+        <button type="button" id="modal-confirm-close" class="btn btn--icon" aria-label="Fechar" data-modal-close="modal-confirm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="18" height="18">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </header>
+      <div class="modal-body">
+        <p id="modal-confirm-desc" class="modal-confirm-text">Tem certeza que deseja excluir esta tarefa? Esta ação não pode ser desfeita.</p>
+      </div>
+      <footer class="modal-footer">
+        <button type="button" id="btn-cancel-confirm" class="btn btn--ghost" data-modal-close="modal-confirm">Cancelar</button>
+        <button type="button" id="btn-confirm-action" class="btn btn--danger">Excluir</button>
+      </footer>
+    </div>
+  </dialog>
+
+
+  <!-- ═══════════════════════════════════════════════════
+       MODAL — Perfil do Usuário
+  ═══════════════════════════════════════════════════ -->
+  <dialog id="modal-profile" class="modal modal--sm" aria-labelledby="modal-profile-title">
+    <div class="modal-overlay" data-modal-close="modal-profile"></div>
+    <div class="modal-content" role="document">
+      <header class="modal-header">
+        <h2 id="modal-profile-title" class="modal-title">Meu Perfil</h2>
+        <button type="button" class="btn btn--icon" aria-label="Fechar" data-modal-close="modal-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="18" height="18">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </header>
+      <div class="modal-body">
+
+        <div class="profile-avatar-section">
+          <div class="profile-avatar-big" id="profile-avatar-preview">?</div>
+          <p class="profile-avatar-hint">As iniciais do seu nome</p>
+        </div>
+
+        <div class="form-group">
+          <label for="profile-name" class="form-label">Seu nome <abbr title="obrigatório">*</abbr></label>
+          <input type="text" id="profile-name" class="form-input"
+            placeholder="Ex.: Ana Lima"
+            maxlength="40" autocomplete="name" />
+        </div>
+
+        <div class="form-group">
+          <label for="profile-role" class="form-label">Função / Cargo</label>
+          <input type="text" id="profile-role" class="form-input"
+            placeholder="Ex.: Designer, Dev Frontend…"
+            maxlength="40" />
+        </div>
+
+      </div>
+      <footer class="modal-footer">
+        <button type="button" class="btn btn--ghost" data-modal-close="modal-profile">Cancelar</button>
+        <button type="button" id="btn-save-profile" class="btn btn--primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true" width="15" height="15">
+            <polyline points="20,6 9,17 4,12"/>
+          </svg>
+          Salvar perfil
+        </button>
+      </footer>
+    </div>
+  </dialog>
+
+
+  <!-- Toast container -->
+  <div id="toast-container" class="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- Footer -->
+  <footer class="app-footer" role="contentinfo">
+    <p class="footer-text">
+      KanbanFlow &mdash; <span id="footer-task-count" aria-live="polite">0 tarefas</span> no board
+      &bull; <time id="footer-updated"></time>
+    </p>
+  </footer>
+
+  <script src="app.js" defer></script>
+
+</body>
+</html>
