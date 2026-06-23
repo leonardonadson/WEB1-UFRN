@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gatos e Filmes com Fetch</title>
+  <style>
+    :root {
+      --bg: #f7f2ff;
+      --surface: #ffffff;
+      --ink: #26113d;
+      --muted: #6d5b7d;
+      --line: #ddd0ee;
+      --accent: #8d3fd1;
+      --accent-dark: #5b238e;
+      --blue: #7a57c8;
+      --shadow: 0 12px 28px rgba(38, 17, 61, 0.14);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(122, 87, 200, 0.18), transparent 32%),
+        linear-gradient(315deg, rgba(141, 63, 209, 0.16), transparent 34%),
+        var(--bg);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 56px;
+    }
+
+    .topo {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 34px;
+      border-bottom: 2px solid var(--ink);
+      padding-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.2rem, 7vw, 5.6rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+      max-width: 880px;
+    }
+
+    .subtitulo {
+      max-width: 680px;
+      margin: 0;
+      color: var(--muted);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .secao {
+      margin-top: 44px;
+    }
+
+    .secao-cabecalho {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 12px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: clamp(1.65rem, 4vw, 3rem);
+      letter-spacing: 0;
+    }
+
+    .contador {
+      color: var(--accent-dark);
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .grade {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      overflow: hidden;
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(141, 63, 209, 0.48);
+      box-shadow: 0 18px 34px rgba(38, 17, 61, 0.18);
+    }
+
+    .card img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+      background: #eee5fa;
+    }
+
+    .filmes .card img {
+      aspect-ratio: 2 / 3;
+    }
+
+    .card h3 {
+      min-height: 58px;
+      margin: 0;
+      padding: 12px 13px 14px;
+      font-family: Verdana, Geneva, sans-serif;
+      font-size: 0.94rem;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .estado {
+      grid-column: 1 / -1;
+      padding: 18px;
+      background: var(--surface);
+      border: 1px dashed var(--blue);
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-family: Verdana, Geneva, sans-serif;
+      line-height: 1.5;
+    }
+
+    .estado.erro {
+      border-color: var(--accent);
+      color: var(--accent-dark);
+    }
+
+    @media (max-width: 620px) {
+      main {
+        width: min(100% - 22px, 1180px);
+        padding-top: 28px;
+      }
+
+      .secao-cabecalho {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .grade {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="topo">
+      <h1>Galeria de Gatos e Filmes</h1>
+      <p class="subtitulo">Dados carregados com fetch em duas APIs públicas, organizados em cards responsivos.</p>
+    </header>
+
+    <section class="secao gatos" aria-labelledby="titulo-gatos">
+      <div class="secao-cabecalho">
+        <h2 id="titulo-gatos">Gatos</h2>
+        <span class="contador" id="contador-gatos">Carregando</span>
+      </div>
+      <div class="grade" id="grade-gatos" aria-live="polite">
+        <p class="estado">Carregando gatos...</p>
+      </div>
+    </section>
+
+    <section class="secao filmes" aria-labelledby="titulo-filmes">
+      <div class="secao-cabecalho">
+        <h2 id="titulo-filmes">Filmes</h2>
+        <span class="contador" id="contador-filmes">Carregando</span>
+      </div>
+      <div class="grade" id="grade-filmes" aria-live="polite">
+        <p class="estado">Carregando filmes...</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const URL_GATOS = 'https://api.thecatapi.com/v1/images/search?limit=30&size=small';
+    const URL_FILMES = 'https://api.sampleapis.com/movies/animation';
+    const TOTAL_GATOS = 30;
+    const TOTAL_FILMES = 30;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarGatos();
+      carregarFilmes();
+    });
+
+    async function buscarJson(url) {
+      const resposta = await fetch(url);
+
+      if (!resposta.ok) {
+        throw new Error(`Erro HTTP ${resposta.status}`);
+      }
+
+      return resposta.json();
+    }
+
+    async function carregarGatos() {
+      const grade = document.getElementById('grade-gatos');
+      const contador = document.getElementById('contador-gatos');
+
+      try {
+        const gatos = [];
+        let tentativas = 0;
+
+        while (gatos.length < TOTAL_GATOS && tentativas < 5) {
+          const resultado = await buscarJson(`${URL_GATOS}&cache=${Date.now()}-${tentativas}`);
+
+          if (!Array.isArray(resultado)) {
+            throw new Error('Resposta inesperada da API de gatos.');
+          }
+
+          gatos.push(...resultado);
+          tentativas++;
+        }
+
+        const primeirosGatos = gatos.slice(0, TOTAL_GATOS);
+
+        if (primeirosGatos.length < TOTAL_GATOS) {
+          throw new Error('A API retornou menos imagens que o esperado.');
+        }
+
+        grade.innerHTML = '';
+        primeirosGatos.forEach((gato, indice) => {
+          grade.appendChild(criarCard({
+            imagem: gato.url,
+            titulo: `Gato ${String(indice + 1).padStart(2, '0')}`,
+            alt: `Imagem do gato ${indice + 1}`
+          }));
+        });
+
+        contador.textContent = `${primeirosGatos.length} cards`;
+      } catch (erro) {
+        mostrarErro(grade, contador, 'Nao foi possivel carregar os gatos agora.');
+        console.error('Erro ao carregar gatos:', erro);
+      }
+    }
+
+    async function carregarFilmes() {
+      const grade = document.getElementById('grade-filmes');
+      const contador = document.getElementById('contador-filmes');
+
+      try {
+        const filmes = await buscarJson(URL_FILMES);
+
+        if (!Array.isArray(filmes)) {
+          throw new Error('Resposta inesperada da API de filmes.');
+        }
+
+        const primeirosFilmes = filmes
+          .filter((filme) => filme.posterURL && filme.title)
+          .slice(0, TOTAL_FILMES);
+
+        if (primeirosFilmes.length === 0) {
+          throw new Error('A API nao retornou filmes com poster e titulo.');
+        }
+
+        grade.innerHTML = '';
+        primeirosFilmes.forEach((filme) => {
+          grade.appendChild(criarCard({
+            imagem: filme.posterURL,
+            titulo: filme.title,
+            alt: `Poster do filme ${filme.title}`
+          }));
+        });
+
+        contador.textContent = `${primeirosFilmes.length} cards`;
+      } catch (erro) {
+        mostrarErro(grade, contador, 'Nao foi possivel carregar os filmes agora.');
+        console.error('Erro ao carregar filmes:', erro);
+      }
+    }
+
+    function criarCard({ imagem, titulo, alt }) {
+      const card = document.createElement('article');
+      card.className = 'card';
+
+      const img = document.createElement('img');
+      img.src = imagem;
+      img.alt = alt;
+      img.loading = 'lazy';
+
+      const nome = document.createElement('h3');
+      nome.textContent = titulo;
+
+      card.appendChild(img);
+      card.appendChild(nome);
+
+      return card;
+    }
+
+    function mostrarErro(grade, contador, mensagem) {
+      grade.innerHTML = '';
+
+      const aviso = document.createElement('p');
+      aviso.className = 'estado erro';
+      aviso.textContent = mensagem;
+
+      grade.appendChild(aviso);
+      contador.textContent = 'Erro';
+    }
+  </script>
+</body>
+</html>
