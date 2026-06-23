@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cadastro em JSON</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">Express + Fetch</p>
+        <h1 id="page-title">Enviar formulario para JSON</h1>
+        <p>
+          Os dados enviados por esta pagina sao gravados no backend e retornam
+          como uma lista atualizada.
+        </p>
+      </section>
+
+      <section class="workspace" aria-label="Formulario e registros">
+        <form id="form-dados" class="panel" novalidate>
+          <div class="field">
+            <label for="nome">Nome</label>
+            <input
+              id="nome"
+              name="nome"
+              type="text"
+              autocomplete="name"
+              placeholder="Digite seu nome"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              placeholder="nome@email.com"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="mensagem">Mensagem</label>
+            <textarea
+              id="mensagem"
+              name="mensagem"
+              rows="5"
+              placeholder="Digite sua mensagem"
+              required
+            ></textarea>
+          </div>
+
+          <button type="submit">Salvar no arquivo JSON</button>
+          <p id="status" class="status" role="status" aria-live="polite"></p>
+        </form>
+
+        <aside class="panel records" aria-labelledby="records-title">
+          <div class="records-header">
+            <h2 id="records-title">Dados retornados</h2>
+            <span id="total-registros">0 registros</span>
+          </div>
+          <pre id="resultado">[]</pre>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>
